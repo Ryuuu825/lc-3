@@ -1,0 +1,11 @@
+BR 0x12
+ADD R0, R0, #8
+ADD R0, R0, #8 
+ADD R0, R0, #8 
+ADD R0, R0, #8 
+ADD R0, R0, #8 
+ADD R0, R0, #8 
+ADD R0, R0, #8 
+ADD R0, R0, #8 ; R0 = 64
+ADD R0, R0, #1 ; R0 = 64
+TRAP 0x1
