@@ -41,9 +41,12 @@ enum Opcode
     OP_BRGT, // branch if greater than
     OP_BRGE, // branch if greater than or equal
     OP_BRLT, // branch if less than
-    OP_BRLE, // branch if less than or equal
+    OP_BRLE, // branch if less than or equals
     OP_BREQZ, // branch if equal to zero
     OP_BRNEZ, // branch if not equal to zero
+    OP_RET, // return
+
+    OP_JSRR, // Jump Subroutine Register
 };
 
 std::vector<std::string> split(const std::string& str, const std::string& delim)
@@ -84,12 +87,20 @@ bool starts_with(const std::string& str, const std::string& prefix)
     return str.find(prefix) == 0;
 }
 
+std::string remove_after(const std::string& str, const char delim)
+{
+    size_t pos = str.find(delim);
+    if (pos == std::string::npos) return str;
+    return str.substr(0, pos);
+}
+
 std::map<std::string, Opcode> opcodes = {
     {"ADD", OP_ADD},
     {"AND", OP_AND},
     {"BR", OP_BR},
     {"JMP", OP_JMP},
     {"JSR", OP_JSR},
+    {"JSRR", OP_JSRR},
     {"LD", OP_LD},
     {"LDI", OP_LDI},
     {"LDR", OP_LDR},
@@ -112,7 +123,8 @@ std::map<std::string, Opcode> opcodes = {
     {"BRLT", OP_BRLT},
     {"BRLE", OP_BRLE},
     {"BREQZ", OP_BREQZ},
-    {"BRNEZ", OP_BRNEZ}
+    {"BRNEZ", OP_BRNEZ},
+    {"RET", OP_RET},
 };
 
 lc_word_t op_add(std::vector<std::string> tokens)
@@ -212,14 +224,68 @@ lc_word_t op_br(std::vector<std::string> tokens)
     }
 }
 
+lc_word_t op_jmp(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_JMP << 12;
+
+    std::string base_r = remove(tokens[1], {'R'});
+    lc_uint_t _base_r = std::stoi(base_r);
+    instr |= (0b000) << 9; // N Z P are all 0
+    instr |= _base_r << 6;
+
+    return instr;
+}
+
+lc_word_t op_jsr(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_JSR << 12;
+
+    // JSR
+    if (tokens.size() == 2)
+    {
+        lc_uint_t pc_offset11;
+        if (starts_with(tokens[1], "#"))
+        {
+            pc_offset11 = std::stoi(remove(tokens[1], {'#'}));
+        } else 
+        {
+            std::stringstream ss;
+            ss << std::hex << tokens[1];
+            ss >> pc_offset11;
+        }
+        instr |= (0b1) << 11;
+        instr |= (pc_offset11 - 1) & 0x7FF;
+        return instr;
+    }
+    // JSRR
+    else
+    {
+        std::string base_r = remove(tokens[1], {'R'});
+        lc_uint_t _base_r = std::stoi(base_r);
+        instr |= _base_r << 6;
+        return instr;
+    }
+}
+
+lc_word_t op_ret(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_JMP << 12;
+    instr |= 0b000 << 9;
+    instr |= 0b111 << 6;
+    return instr;
+}
 
 
 std::map<Opcode, lc_word_t (*)(std::vector<std::string>)> op_table = {
     {OP_ADD, op_add},
     {OP_AND, op_and},
     {OP_BR, op_br},
-    // {OP_JMP, op_jmp},
-    // {OP_JSR, op_jsr},
+    {OP_JMP, op_jmp},
+    {OP_JSR, op_jsr},
+    {OP_JSRR, op_jsr},
     // {OP_LD, op_ld},
     // {OP_LDI, op_ldi},
     // {OP_LDR, op_ldr},
@@ -229,7 +295,7 @@ std::map<Opcode, lc_word_t (*)(std::vector<std::string>)> op_table = {
     // {OP_STI, op_sti},
     // {OP_STR, op_str},
     {OP_TRAP, op_trap},
-
+    {OP_RET, op_ret}
 };
 
 int main(int argc, char** argv)
@@ -254,7 +320,7 @@ int main(int argc, char** argv)
             address++;
             continue;
         }
-        std::vector<std::string> tokens = split(line, " ");
+        std::vector<std::string> tokens = split(remove_after(line, ';'), " ");
         if (tokens.size() == 1)
         {
             symbol_table[tokens[0]] = address;
@@ -270,15 +336,15 @@ int main(int argc, char** argv)
     for (const auto& line : lines)
     {
         if (line[0] == '.') continue;
-        std::vector<std::string> tokens = split(line, " ");
+        std::vector<std::string> tokens = split(remove_after(line, ';'), " ");
+
         // parse instruction
         Opcode opcode = opcodes[tokens[0]];
         lc_word_t instr = 0;
         instr |= opcode << 12;
-        
+
         // map to function
         instr |= (op_table[opcode](tokens) & 0x0FFF);
-
 
         memory.push_back(instr);
     }

@@ -24,7 +24,7 @@ void trap_in()
 
 void trap_halt()
 {    
-    puts("HALT");
+    std::cout << "Program halted" << std::endl;
     fflush(stdout);
     running = false;
 }

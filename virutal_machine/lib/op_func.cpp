@@ -89,7 +89,7 @@ void op_br(lc_word_t instr)
     lc_uint_t z = bit_at(instr, 10); // Zero
     lc_uint_t p = bit_at(instr, 9);  // Positive
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    if ((n && (reg[R_COND] & FL_NEG)) || (z && (reg[R_COND] & FL_ZRO)) || (p && (reg[R_COND] & FL_POS)))
+    if ((n && (reg[R_COND] & FL_NEG)) || (z && (reg[R_COND] & FL_ZRO)) || (p && (reg[R_COND] & FL_POS)) || (!n && !z && !p))
     {
         reg[R_PC] += pc_offset;
     }
