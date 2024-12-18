@@ -5,7 +5,7 @@
 #include "op_func.hpp"
 #include "stringhelper.hpp"
 
-lc_word_t op_add(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_add(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_ADD << 12;
@@ -31,10 +31,10 @@ lc_word_t op_add(std::vector<std::string> tokens)
         lc_uint_t _sr2 = std::stoi(sr2);
         instr |= _sr2;
     }
-    return instr;
+    return {instr};
 }
 
-lc_word_t op_trap(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_trap(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_TRAP << 12;
@@ -44,10 +44,10 @@ lc_word_t op_trap(std::vector<std::string> tokens)
     lc_uint_t trapvect8;
     ss >> trapvect8;
     instr |= trapvect8;
-    return instr;
+    return {instr};
 }
 
-lc_word_t op_and(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_and(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_AND << 12;
@@ -73,10 +73,10 @@ lc_word_t op_and(std::vector<std::string> tokens)
         lc_uint_t _sr2 = std::stoi(sr2);
         instr |= _sr2;
     }
-    return instr;
+    return {instr};
 }
 
-lc_word_t op_br(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_br(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_BR << 12;
@@ -98,11 +98,11 @@ lc_word_t op_br(std::vector<std::string> tokens)
          
         instr |= (0b000) << 9; // N Z P are all 0
         instr |= pc_offset9 & 0x1FF;
-        return instr;
+        return {instr};
     }
 }
 
-lc_word_t op_jmp(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_jmp(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_JMP << 12;
@@ -112,10 +112,10 @@ lc_word_t op_jmp(std::vector<std::string> tokens)
     instr |= (0b000) << 9; // N Z P are all 0
     instr |= _base_r << 6;
 
-    return instr;
+    return {instr};
 }
 
-lc_word_t op_jsr(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_jsr(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_JSR << 12;
@@ -135,7 +135,7 @@ lc_word_t op_jsr(std::vector<std::string> tokens)
         }
         instr |= (0b1) << 11;
         instr |= (pc_offset11 - 1) & 0x7FF;
-        return instr;
+        return {instr};
     }
     // JSRR
     else
@@ -143,35 +143,146 @@ lc_word_t op_jsr(std::vector<std::string> tokens)
         std::string base_r = remove(tokens[1], {'R'});
         lc_uint_t _base_r = std::stoi(base_r);
         instr |= _base_r << 6;
-        return instr;
+        return {instr};
     }
 }
 
-lc_word_t op_ret(std::vector<std::string> tokens)
+std::vector<lc_word_t> op_ret(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
     instr |= OP_JMP << 12;
     instr |= 0b000 << 9;
     instr |= 0b111 << 6;
-    return instr;
+    return {instr};
 }
 
+std::vector<lc_word_t> op_not(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_NOT << 12;
 
-std::map<Opcode, lc_word_t (*)(std::vector<std::string>)> op_table = {
+    lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= dr << 9;
+
+    lc_uint_t sr = std::stoi(remove(tokens[2], {'R'}));
+    instr |= sr << 6;
+
+    instr |= 0b111111;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_ld(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_LD << 12;
+
+    lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= dr << 9;
+
+    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    instr |= pc_offset9 & 0x1FF;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_st(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_ST << 12;
+
+    lc_uint_t sr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= sr << 9;
+
+    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    instr |= pc_offset9 & 0x1FF;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_ldi(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_LDI << 12;
+
+    lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= dr << 9;
+
+    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    instr |= pc_offset9 & 0x1FF;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_sti(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_STI << 12;
+
+    lc_uint_t sr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= sr << 9;
+
+    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    instr |= pc_offset9 & 0x1FF;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_ldr(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_LDR << 12;
+
+    lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= dr << 9;
+
+    lc_uint_t base_r = std::stoi(remove(tokens[2], {'R', ','}));
+    instr |= base_r << 6;
+
+    lc_uint_t offset6 = std::stoi(tokens[3]);
+    instr |= offset6 & 0x3F;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_str(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_STR << 12;
+
+    lc_uint_t sr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= sr << 9;
+
+    lc_uint_t base_r = std::stoi(remove(tokens[2], {'R', ','}));
+    instr |= base_r << 6;
+
+    lc_uint_t offset6 = std::stoi(tokens[3]);
+    instr |= offset6 & 0x3F;
+    return {instr};
+}
+
+std::vector<lc_word_t> op_lea(std::vector<std::string> tokens)
+{
+    lc_word_t instr = 0;
+    instr |= OP_LD << 12;
+
+    lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
+    instr |= dr << 9;
+
+    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    instr |= pc_offset9 & 0x1FF;
+    return {instr};
+}
+
+std::map<Opcode, std::vector<lc_word_t> (*)(std::vector<std::string>)> op_table = {
     {OP_ADD, op_add},
     {OP_AND, op_and},
     {OP_BR, op_br},
     {OP_JMP, op_jmp},
     {OP_JSR, op_jsr},
     {OP_JSRR, op_jsr},
-    // {OP_LD, op_ld},
-    // {OP_LDI, op_ldi},
-    // {OP_LDR, op_ldr},
-    // {OP_LEA, op_lea},
-    // {OP_NOT, op_not},
-    // {OP_ST, op_st},
-    // {OP_STI, op_sti},
-    // {OP_STR, op_str},
+    {OP_LD, op_ld},
+    {OP_LDI, op_ldi},
+    {OP_LDR, op_ldr},
+    {OP_LEA, op_lea},
+    {OP_NOT, op_not},
+    {OP_ST, op_st},
+    {OP_STI, op_sti},
+    {OP_STR, op_str},
     {OP_TRAP, op_trap},
-    {OP_RET, op_ret}
+    {OP_RET, op_ret},
 };

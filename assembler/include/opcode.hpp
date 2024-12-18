@@ -39,7 +39,7 @@ enum Opcode
     OP_BREQZ, // branch if equal to zero
     OP_BRNEZ, // branch if not equal to zero
     OP_RET, // return
-
+    OP_OR, // bitwise OR
     OP_JSRR, // Jump Subroutine Register
 };
 

@@ -6,7 +6,12 @@ targets := lc3ac
 main: clean $(targets).cpp
 	$(cc) $(flags) -I./include ./lib/*.cpp $(targets).cpp 
 	$(cc) -o $(targets) *.o
+	./$(targets)
+	../virutal_machine/main
+	make clean
 
 # Remove all object files
 clean:
 	find . -name "*.o" -type f -delete
+	rm -f $(targets)
+	rm -f test.bin

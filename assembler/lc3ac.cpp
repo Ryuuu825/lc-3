@@ -10,10 +10,15 @@
 
 #include "opcode.hpp"
 #include "op_func.hpp"
+#include "directives.hpp"
 #include "stringhelper.hpp"
 
 extern std::map<std::string, Opcode> opcodes;
-extern std::map<Opcode, lc_word_t (*)(std::vector<std::string>)> op_table;
+extern std::map<Opcode, std::vector<lc_word_t> (*)(std::vector<std::string>)> op_table;
+extern std::map<std::string, CompilerDirectives> directives;
+extern std::map<CompilerDirectives, void (*)(std::string)> directive_table;
+
+std::vector<lc_word_t> memory;
 
 int main(int argc, char** argv)
 {
@@ -26,7 +31,6 @@ int main(int argc, char** argv)
         lines.push_back(trim(line));
     }
 
-    std::vector<lc_word_t> memory;
     memory.push_back(0x0000); // placeholder for entry_address
     memory.push_back(0x0000); // placeholder for program_size
 
@@ -37,13 +41,10 @@ int main(int argc, char** argv)
     {
         if (line[0] == '.') 
         {
-            // ORIG
-        };
-        if (line[0] == ' ')
-        {
-            address++;
+            CompilerDirectives directive = directives[line];
+            directive_table[directive](line);
             continue;
-        }
+        };
         std::vector<std::string> tokens = split(remove_after(line, ';'), " ");
         if (tokens.size() == 1)
         {
@@ -63,13 +64,12 @@ int main(int argc, char** argv)
 
         // parse instruction
         Opcode opcode = opcodes[tokens[0]];
-        lc_word_t instr = 0;
-        instr |= opcode << 12;
-
         // map to function
-        instr |= (op_table[opcode](tokens) & 0x0FFF);
-
-        memory.push_back(instr);
+        std::vector<lc_word_t> instructions = op_table[opcode](tokens);
+        for (const auto& instr : instructions)
+        {
+            memory.push_back(instr);
+        }
     }
 
     // write to file
