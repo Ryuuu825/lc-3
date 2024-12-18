@@ -1,6 +1,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #include "directives.hpp"
 #include "stringhelper.hpp"
@@ -45,8 +46,8 @@ void cd_stringz(std::string line)
     // calculate size of string
     size_t first_quote = line.find_first_of('"');
     size_t last_quote = line.find_last_of('"');
-    std::string str = line.substr(first_quote + 1, last_quote - first_quote - 1);
-    address += str.size() + 1; 
+    size_t size = (last_quote - first_quote + 1 ) / 2 + (last_quote - first_quote  + 1) % 2;
+    address += size;
 }
 
 void cd_end(std::string line)
@@ -98,13 +99,23 @@ void op_stringz(std::string line)
     size_t first_quote = line.find_first_of('"');
     size_t last_quote = line.find_last_of('"');
     std::string str = line.substr(first_quote + 1, last_quote - first_quote - 1);
-    for (char c : str)
+    std::cout << "str: " << str << std::endl;
+    size_t size = (last_quote - first_quote + 1 ) / 2 + (last_quote - first_quote  + 1) % 2;
+    for (size_t i = 0; i < size; i++)
     {
-        memory[address] = c;
+        // two char in one word (big endian)
+        lc_word_t word = 0;
+        if (i * 2 < str.size())
+        {
+            word |= str[i * 2];
+        }
+        if (i * 2 + 1 < str.size())
+        {
+            word |= str[i * 2 + 1] << 8;
+        }
+        memory.push_back(word);
         address += 1;
     }
-    memory[address] = 0;
-    address += 1;
 }
 
 
