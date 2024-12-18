@@ -1,10 +1,13 @@
+#include <map>
+#include <iostream>
+
 #include "lc_type.hpp"
 #include "op_func.hpp"
 
 extern bool running;
 extern Memory memory;
 extern lc_word_t reg[R_COUNT];
-extern void (*trap_table[16])();
+extern std::map<int, trap_func> trap_table;
 
 lc_int_t sign_extend(lc_int_t x, int bit_count)
 {
@@ -35,8 +38,6 @@ void update_flag(lc_uint_t r)
         reg[R_COND] = FL_POS;
     }
 }
-
-#include <iostream>
 
 void op_add(lc_word_t instr)
 {
@@ -119,9 +120,17 @@ void op_jsr(lc_word_t instr)
 
 void op_trap(lc_word_t instr)
 {
-
-    TrapCode trap_vector = (TrapCode) (instr & 0xFF);
-    trap_table[trap_vector]();
+    lc_int_t trap_vector = (instr & 0xFF);
+    // find if trap vector exists
+    if (trap_table.find(trap_vector) != trap_table.end())
+    {
+        trap_table[trap_vector]();
+    }
+    else
+    {
+        std::cout << "Error: Trap vector not found" << std::endl;
+        running = false;
+    }
 }
 
 void op_ld(lc_word_t instr)

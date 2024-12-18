@@ -7,15 +7,9 @@
 #include "lc_type.hpp"
 
 // 2^16 entries => 2^16 * 2 bytes = 2^16 * 2 bytes = 2^17 bytes = 128KB
-#define MEMORY_MAX 65536 
+#define MEMORY_MAX 65535 + 1 
 #define MEMORY_LATENCY 1
 
-#define L1_CACHE_SIZE 16
-#define L1_CACHE_LATENCY 1
-
-// this system uses big-endian and byte-addressable memory
-// please use read / read_word / write / write_word to access memory in system
-// since no cache is in lc-3, we only implement one level cache
 struct Memory 
 {
 public:
