@@ -1,4 +1,12 @@
-all:
-	g++ -std=c++11 -o lc3ac lc3ac.cpp
-	./lc3ac
-	../virutal_machine/main
+cc := g++
+flags := -std=c++14 -Wall -c
+targets := lc3ac
+
+# Remove the -c flag and link all source files together
+main: clean $(targets).cpp
+	$(cc) $(flags) -I./include ./lib/*.cpp $(targets).cpp 
+	$(cc) -o $(targets) *.o
+
+# Remove all object files
+clean:
+	find . -name "*.o" -type f -delete
