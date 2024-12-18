@@ -17,6 +17,11 @@ void trap_out()
     std::cout << (char)reg[R_R0] << std::flush;
 }
 
+void trap_out_int()
+{
+    std::cout << reg[R_R0] << std::flush;
+}
+
 void trap_halt()
 {    
     std::cout << "Program halted" << std::endl;
@@ -27,5 +32,6 @@ void trap_halt()
 std::map<int, trap_func> trap_table = {
     {0x20, trap_getc},
     {0x21, trap_out},
+    {0x24, trap_out_int},
     {0x25, trap_halt},
 };
