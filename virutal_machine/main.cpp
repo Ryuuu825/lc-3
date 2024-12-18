@@ -23,7 +23,8 @@ int main(int argc, char** argv)
     }
 
     lc_word_t instr;
-    int i = 0x3000;
+    file.read(reinterpret_cast<char*>(&instr), sizeof(lc_word_t)); // starting address stored in the first word
+    lc_uint_t i = instr;
     while (file.read(reinterpret_cast<char*>(&instr), sizeof(lc_word_t)))
     {
         memory.write(i++, instr);
