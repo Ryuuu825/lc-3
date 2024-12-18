@@ -8,7 +8,6 @@ main: clean $(targets).cpp
 	$(cc) -o $(targets) *.o
 	./$(targets)
 	../virutal_machine/main
-	make clean
 
 # Remove all object files
 clean:

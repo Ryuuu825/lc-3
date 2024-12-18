@@ -5,6 +5,9 @@
 #include "op_func.hpp"
 #include "stringhelper.hpp"
 
+extern std::map<std::string, lc_word_t> symbol_table;
+extern lc_word_t address;
+
 std::vector<lc_word_t> op_add(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
@@ -84,17 +87,22 @@ std::vector<lc_word_t> op_br(std::vector<std::string> tokens)
     // unconditional branch
     if (tokens.size() == 2)
     {
-        lc_uint_t pc_offset9;
+        lc_int_t pc_offset9;
 
-         if (starts_with(tokens[1], "#"))
-         {
+        if (starts_with(tokens[1], "#"))
+        {
             pc_offset9 = std::stoi(remove(tokens[1], {'#'}));
-         } else 
-         {
+        } 
+        else if (starts_with(tokens[1], "x") || starts_with(tokens[1], "0x"))
+        {
             std::stringstream ss;
             ss << std::hex << tokens[1];
             ss >> pc_offset9;
-         }
+        }
+        else {
+            // label
+            pc_offset9 = symbol_table[tokens[1]] - address - 1;
+        }
          
         instr |= (0b000) << 9; // N Z P are all 0
         instr |= pc_offset9 & 0x1FF;
@@ -127,11 +135,20 @@ std::vector<lc_word_t> op_jsr(std::vector<std::string> tokens)
         if (starts_with(tokens[1], "#"))
         {
             pc_offset11 = std::stoi(remove(tokens[1], {'#'}));
-        } else 
+        } 
+        else if (starts_with(tokens[1], "x") || starts_with(tokens[1], "0x"))
         {
             std::stringstream ss;
             ss << std::hex << tokens[1];
             ss >> pc_offset11;
+        }
+        else {
+            // label
+            pc_offset11 = symbol_table[tokens[1]] - address - 1;
+            if (pc_offset11 >= 0)
+            {
+                pc_offset11 += 1;
+            }
         }
         instr |= (0b1) << 11;
         instr |= (pc_offset11 - 1) & 0x7FF;
@@ -179,7 +196,21 @@ std::vector<lc_word_t> op_ld(std::vector<std::string> tokens)
     lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
     instr |= dr << 9;
 
-    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    lc_uint_t pc_offset9 = 0;
+    if (starts_with(tokens[2], "#"))
+    {
+        pc_offset9 = std::stoi(tokens[2].substr(1));
+    }
+    else if (starts_with(tokens[2], "x") || starts_with(tokens[2], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[2];
+        ss >> pc_offset9;
+    }
+    else {
+        // label
+        pc_offset9 = symbol_table[tokens[2]] - address - 1;
+    }
     instr |= pc_offset9 & 0x1FF;
     return {instr};
 }
@@ -192,7 +223,21 @@ std::vector<lc_word_t> op_st(std::vector<std::string> tokens)
     lc_uint_t sr = std::stoi(remove(tokens[1], {'R', ','}));
     instr |= sr << 9;
 
-    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    lc_uint_t pc_offset9 = 0;
+    if (starts_with(tokens[2], "#"))
+    {
+        pc_offset9 = std::stoi(tokens[2].substr(1));
+    }
+    else if (starts_with(tokens[2], "x") || starts_with(tokens[2], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[2];
+        ss >> pc_offset9;
+    }
+    else {
+        // label
+        pc_offset9 = symbol_table[tokens[2]] - address - 1;
+    }
     instr |= pc_offset9 & 0x1FF;
     return {instr};
 }
@@ -205,7 +250,21 @@ std::vector<lc_word_t> op_ldi(std::vector<std::string> tokens)
     lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
     instr |= dr << 9;
 
-    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    lc_uint_t pc_offset9 = 0;
+    if (starts_with(tokens[2], "#"))
+    {
+        pc_offset9 = std::stoi(tokens[2].substr(1));
+    }
+    else if (starts_with(tokens[2], "x") || starts_with(tokens[2], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[2];
+        ss >> pc_offset9;
+    }
+    else {
+        // label
+        pc_offset9 = symbol_table[tokens[2]] - address - 1;
+    }
     instr |= pc_offset9 & 0x1FF;
     return {instr};
 }
@@ -218,7 +277,21 @@ std::vector<lc_word_t> op_sti(std::vector<std::string> tokens)
     lc_uint_t sr = std::stoi(remove(tokens[1], {'R', ','}));
     instr |= sr << 9;
 
-    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    lc_uint_t pc_offset9 = 0;
+    if (starts_with(tokens[2], "#"))
+    {
+        pc_offset9 = std::stoi(tokens[2].substr(1));
+    }
+    else if (starts_with(tokens[2], "x") || starts_with(tokens[2], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[2];
+        ss >> pc_offset9;
+    }
+    else {
+        // label
+        pc_offset9 = symbol_table[tokens[2]] - address - 1;
+    }
     instr |= pc_offset9 & 0x1FF;
     return {instr};
 }
@@ -234,7 +307,21 @@ std::vector<lc_word_t> op_ldr(std::vector<std::string> tokens)
     lc_uint_t base_r = std::stoi(remove(tokens[2], {'R', ','}));
     instr |= base_r << 6;
 
-    lc_uint_t offset6 = std::stoi(tokens[3]);
+    lc_uint_t offset6 = 0;
+    if (starts_with(tokens[3], "#"))
+    {
+        offset6 = std::stoi(tokens[3].substr(1));
+    }
+    else if (starts_with(tokens[3], "x") || starts_with(tokens[3], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[3];
+        ss >> offset6;
+    }
+    else {
+        // label
+        offset6 = symbol_table[tokens[3]] - address - 1;
+    }
     instr |= offset6 & 0x3F;
     return {instr};
 }
@@ -250,7 +337,21 @@ std::vector<lc_word_t> op_str(std::vector<std::string> tokens)
     lc_uint_t base_r = std::stoi(remove(tokens[2], {'R', ','}));
     instr |= base_r << 6;
 
-    lc_uint_t offset6 = std::stoi(tokens[3]);
+    lc_uint_t offset6 = 0;
+    if (starts_with(tokens[3], "#"))
+    {
+        offset6 = std::stoi(tokens[3].substr(1));
+    }
+    else if (starts_with(tokens[3], "x") || starts_with(tokens[3], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[3];
+        ss >> offset6;
+    }
+    else {
+        // label
+        offset6 = symbol_table[tokens[3]] - address - 1;
+    }
     instr |= offset6 & 0x3F;
     return {instr};
 }
@@ -258,12 +359,26 @@ std::vector<lc_word_t> op_str(std::vector<std::string> tokens)
 std::vector<lc_word_t> op_lea(std::vector<std::string> tokens)
 {
     lc_word_t instr = 0;
-    instr |= OP_LD << 12;
+    instr |= OP_LEA << 12;
 
     lc_uint_t dr = std::stoi(remove(tokens[1], {'R', ','}));
     instr |= dr << 9;
 
-    lc_uint_t pc_offset9 = std::stoi(tokens[2]);
+    lc_uint_t pc_offset9 = 0;
+    if (starts_with(tokens[2], "#"))
+    {
+        pc_offset9 = std::stoi(tokens[2].substr(1));
+    }
+    else if (starts_with(tokens[2], "x") || starts_with(tokens[2], "0x"))
+    {
+        std::stringstream ss;
+        ss << std::hex << tokens[2];
+        ss >> pc_offset9;
+    }
+    else {
+        // label
+        pc_offset9 = symbol_table[tokens[2]] - address - 1;
+    }
     instr |= pc_offset9 & 0x1FF;
     return {instr};
 }

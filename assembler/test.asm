@@ -1,13 +1,12 @@
-ADD R0, R0, #8
-ADD R0, R0, #8 
-ADD R0, R0, #8 
-ADD R0, R0, #8 
-ADD R0, R0, #8 
-ADD R0, R0, #8 
-ADD R0, R0, #8 
-ADD R0, R0, #8 ; R0 = 64
-ADD R0, R0, #1 ; R0 = 65 (ASCII 'A')
-ADD R1, R1, #0
-AND R0, R0, R1 ; R0 = 0
-TRAP 0x1 ; print R0
-TRAP 0x3 ; halt
+.ORIG 0x3000
+LOOP:   LEA R0, A
+        LDR R0, R0, #0
+        JSR print
+        TRAP 0x3 ; halt
+print:  TRAP 0x01 ; print char
+        RET         
+
+A: .FILL #65
+TEST6: .BLKW #5
+
+.END
