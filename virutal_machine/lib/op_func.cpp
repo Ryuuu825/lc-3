@@ -153,7 +153,7 @@ void op_lea(lc_word_t instr)
 {
     lc_uint_t dr = (instr >> 9) & 0b111;
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    reg[dr] = reg[R_PC] + pc_offset;
+    reg[dr] = reg[R_PC] + pc_offset + 1;
     update_flag(dr);
 }
 
