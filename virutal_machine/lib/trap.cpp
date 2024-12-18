@@ -15,7 +15,7 @@ void trap_getc()
 
 void trap_puts()
 {
-    lc_uint_t* c = memory.main_memory.data() + reg[R_R0] - 1;
+    lc_uint_t* c = memory.main_memory.data() + reg[R_R0];
     while (*c)
     {
         // two char in one word
