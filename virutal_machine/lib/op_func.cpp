@@ -128,7 +128,7 @@ void op_ld(lc_word_t instr)
 {
     lc_uint_t dr = (instr >> 9) & 0b111;
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    reg[dr] = memory.read(reg[R_PC] + pc_offset);
+    reg[dr] = memory.read(reg[R_PC] + pc_offset + 1);
     update_flag(dr);
 }
 
@@ -136,7 +136,7 @@ void op_ldi(lc_word_t instr)
 {
     lc_uint_t dr = (instr >> 9) & 0b111;
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    reg[dr] = memory.read(memory.read(reg[R_PC] + pc_offset));
+    reg[dr] = memory.read(memory.read(reg[R_PC] + 1 + pc_offset));
     update_flag(dr);
 }
 
@@ -161,14 +161,14 @@ void op_st(lc_word_t instr)
 {
     lc_uint_t sr = (instr >> 9) & 0b111;
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    memory.write(reg[R_PC] + pc_offset, reg[sr]);
+    memory.write(reg[R_PC] + 1 + pc_offset, reg[sr]);
 }
 
 void op_sti(lc_word_t instr)
 {
     lc_uint_t sr = (instr >> 9) & 0b111;
     lc_int_t pc_offset = sign_extend(instr & 0x1FF, 9);
-    memory.write(memory.read(reg[R_PC] + pc_offset), reg[sr]);
+    memory.write(memory.read(reg[R_PC] + 1 + pc_offset), reg[sr]);
 }
 
 void op_str(lc_word_t instr)

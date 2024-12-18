@@ -43,6 +43,4 @@ int main(int argc, char** argv)
         op_table[op](instr);
         reg[R_PC]++;
     }
-
-    
 }
