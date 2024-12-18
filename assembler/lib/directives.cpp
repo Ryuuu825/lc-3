@@ -99,7 +99,6 @@ void op_stringz(std::string line)
     size_t first_quote = line.find_first_of('"');
     size_t last_quote = line.find_last_of('"');
     std::string str = line.substr(first_quote + 1, last_quote - first_quote - 1);
-    std::cout << "str: " << str << std::endl;
     size_t size = (last_quote - first_quote + 1 ) / 2 + (last_quote - first_quote  + 1) % 2;
     for (size_t i = 0; i < size; i++)
     {
