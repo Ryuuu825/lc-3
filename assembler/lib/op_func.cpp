@@ -28,6 +28,15 @@ std::vector<lc_word_t> op_add(std::vector<std::string> tokens)
         instr |= 0b1 << 5;
         instr |= imm5 & 0b11111;
     }
+    else if (starts_with(tokens[3] , "0x"))
+    {
+        lc_uint_t imm5;
+        std::stringstream ss;
+        ss << std::hex << tokens[3];
+        ss >> imm5;
+        instr |= 0b1 << 5;
+        instr |= imm5 & 0b11111;
+    }
     else
     {
         std::string sr2 = remove(tokens[3], {'R'});
@@ -67,6 +76,15 @@ std::vector<lc_word_t> op_and(std::vector<std::string> tokens)
     if (starts_with(tokens[3], "#"))
     {
         lc_uint_t imm5 = std::stoi(tokens[3].substr(1));
+        instr |= 0b1 << 5;
+        instr |= imm5 & 0b11111;
+    }
+    else if (starts_with(tokens[3] , "0x"))
+    {
+        lc_uint_t imm5;
+        std::stringstream ss;
+        ss << std::hex << tokens[3];
+        ss >> imm5;
         instr |= 0b1 << 5;
         instr |= imm5 & 0b11111;
     }
