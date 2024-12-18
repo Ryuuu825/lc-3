@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     reg[R_PC] = 0x3000; // PC starts at 0x3000
     reg[R_COND] = FL_ZRO;
 
-    while(running && reg[R_PC] < 0x4000)
+    while(running)
     {
         // Fetch
         lc_word_t instr = memory.read(reg[R_PC]);

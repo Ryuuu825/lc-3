@@ -11,8 +11,7 @@ void trap_getc()
 
 void trap_out()
 {
-    std::cout << (char)reg[R_R0];
-    fflush(stdout);
+    std::cout << (char)reg[R_R0] << std::flush;
 }
 
 void trap_in()
