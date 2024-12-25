@@ -94,12 +94,6 @@ lc_word_t Memory::read_word(lc_uint_t address)
     {
         main_memory[mmregister::TSR] = 1 << 15;
     }
-    if (address == mmregister::TDR)
-    {
-        time_t t;
-        time(&t);
-        main_memory[mmregister::TDR] = t;
-    }
 
     return main_memory[address];
 }
