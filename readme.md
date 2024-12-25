@@ -17,3 +17,5 @@ Therefore, I am trying to implement a simple vm & assembler & compiler & os targ
     - LC-3 OS & Compiler
 - https://highered.mheducation.com/sites/0072467509/student_view0/c_to_lc-3_compiler.html
     - lc-3 assembler
+- https://acg.cis.upenn.edu/milom/cse240-Fall05/
+    - LC-3 I/O
