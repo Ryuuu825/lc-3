@@ -129,7 +129,6 @@ void op_trap(lc_word_t instr)
     else
     {
         std::cout << "Error: Trap vector not found" << std::endl;
-        running = false;
     }
 }
 

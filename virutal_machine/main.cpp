@@ -34,8 +34,6 @@ int main(int argc, char** argv)
         memory.write(i++, instr);
     }
 
-
-
     while(running && reg[R_PC] < 0x8000)
     {
         // Fetch

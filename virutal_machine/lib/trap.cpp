@@ -32,13 +32,12 @@ void trap_out()
 
 void trap_out_int()
 {
-    std::cout << reg[R_R0] << std::flush;
+    std::cout << (int)reg[R_R0] << std::flush;
 }
 
 void trap_halt()
 {    
     std::cout << "Program halted" << std::endl;
-    fflush(stdout);
     running = false;
 }
 

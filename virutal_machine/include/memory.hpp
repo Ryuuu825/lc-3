@@ -5,57 +5,27 @@
 #include <thread>
 
 #include "lc_type.hpp"
+#include "mmregister.hpp"
 
 // 2^16 entries => 2^16 * 2 bytes = 2^16 * 2 bytes = 2^17 bytes = 128KB
 #define MEMORY_MAX 65535 + 1 
 #define MEMORY_LATENCY 1
 
+void disable_input_buffering();
+void restore_input_buffering();
+void handle_interrupt(int signal);
+void handle_input();
+lc_uint_t check_key();
+
 struct Memory 
 {
-public:
-
-    inline lc_word_t read(lc_int_t address)
-    {
-        return read_word(address);
-    }
-
-    inline void write(lc_int_t address, lc_word_t value)
-    {
-        write_word(address, value);
-    }
-
-    inline lc_word_t read_word(lc_int_t address)
-    {
-        return main_memory[address];
-    }
-
-    inline lc_byte_t read_hi_byte(lc_int_t address)
-    {
-        lc_word_t d = read_word(address);
-        return (d >> 8) & 0xFF;
-    }
-
-    inline lc_byte_t read_lo_byte(lc_int_t address)
-    {
-        lc_word_t d = read_word(address);
-        return d & 0xFF;
-    }
-
-    inline void write_word(lc_int_t address, lc_word_t value)
-    {
-        main_memory[address] = value;
-    }
-
-    inline void write_hi_byte(lc_int_t address, lc_byte_t value)
-    {
-        main_memory[address] = (main_memory[address] & 0xFF) | (value << 8);
-    }
-
-    inline void write_lo_byte(lc_int_t address, lc_byte_t value)
-    {
-        main_memory[address] = (main_memory[address] & 0xFF00) | value;
-    }
-
+    lc_word_t read(lc_uint_t address);
+    void write(lc_uint_t address, lc_word_t value);
+    lc_word_t read_word(lc_uint_t address);
+    lc_byte_t read_hi_byte(lc_uint_t address);
+    lc_byte_t read_lo_byte(lc_uint_t address);
+    void write_word(lc_uint_t address, lc_word_t value);
+    void write_hi_byte(lc_uint_t address, lc_byte_t value);
+    void write_lo_byte(lc_uint_t address, lc_byte_t value);
     std::array<lc_word_t, MEMORY_MAX> main_memory = {};
-
 };
