@@ -32,6 +32,10 @@ int main(int argc, char** argv)
     while (std::getline(file, line))
     {
         if (line.empty()) continue;
+        if (trim(line)[0] == ';') continue;
+        if (trim(line)[0] == '\n') continue;
+        if (trim(line)[0] == '@') continue;
+        if (trim(line)[0] == ' ') continue; // empty line with spaces
         lines.push_back(trim(line));
     }
 
@@ -47,10 +51,6 @@ int main(int argc, char** argv)
             directive_table[directive](line);
             continue;
         };
-        if (line[0] == ';') continue;
-        if (line[0] == '\n') continue;
-        if (trim(line).empty()) continue;
-        if (line[0] == '@') continue;
 
         std::vector<std::string> tokens = split(remove_after(line, ';'), " ");
         if (tokens[0].back() == ':') // label
