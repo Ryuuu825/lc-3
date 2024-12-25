@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     }
 
     memory.reserve(lines.size() * 2);
-    memory.push_back(0); // starting address
+    memory.push_back(0); // starting address of the program
 
     // first pass
     for (auto& line : lines)
@@ -80,7 +80,10 @@ int main(int argc, char** argv)
             continue;
         };
         // parse instruction
-        Opcode opcode = opcodes[tokens[0]];
+        std::string op = tokens[0];
+        // make the op code all uppercase
+        std::transform(op.begin(), op.end(), op.begin(), ::toupper);
+        Opcode opcode = opcodes[op];
 
         // map to function
         std::vector<lc_word_t> instructions = op_table[opcode](tokens);
