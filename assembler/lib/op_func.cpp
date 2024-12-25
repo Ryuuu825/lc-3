@@ -102,6 +102,19 @@ std::vector<lc_word_t> op_br(std::vector<std::string> tokens)
     lc_word_t instr = 0;
     instr |= OP_BR << 12;
 
+    lc_uint_t n = 0;
+    lc_uint_t z = 0;
+    lc_uint_t p = 0;
+
+    for (const auto& token : tokens[0])
+    {
+        // to uppercase
+        char c = std::toupper(token);
+        if (c == 'N') n = 1;
+        if (c == 'Z') z = 1;
+        if (c == 'P') p = 1;
+    }
+
     // unconditional branch
     if (tokens.size() == 2)
     {
@@ -122,7 +135,7 @@ std::vector<lc_word_t> op_br(std::vector<std::string> tokens)
             pc_offset9 = symbol_table[tokens[1]] - address - 1;
         }
          
-        instr |= (0b000) << 9; // N Z P are all 0
+        instr |= (n << 11) | (z << 10) | (p << 9);
         instr |= pc_offset9 & 0x1FF;
         return {instr};
     }
